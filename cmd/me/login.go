@@ -6,6 +6,7 @@ package me
 import (
 	"fmt"
 
+	"github.com/scriptnsam/blip-v2/pkg/authentication"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +21,12 @@ var loginCmd = &cobra.Command{
 	Short: "Login to your Blip account",
 	Long: `You need to be authentcated to peform other action`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("login called")
+		resp,err := authentication.Login(username, password)
+
+		if err!=nil{
+			fmt.Println(err)
+		}
+		fmt.Println(resp)
 	},
 }
 
