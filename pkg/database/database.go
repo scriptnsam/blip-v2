@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/spf13/viper"
 	_ "modernc.org/sqlite" // import sqlite3 driver for mysql and sqlite
 )
 type Database struct {
@@ -13,7 +14,7 @@ type Database struct {
 
 type DBConfig struct {
 	Host     string
-	Port     int
+	Port     string
 	User     string
 	Password string
 	Database     string
@@ -22,13 +23,13 @@ type DBConfig struct {
 // connect to the databse
 func Connect() (*Database, error) {
 	config :=DBConfig{
-		Host:     "sql.freedb.tech",
-		Port:     3306,
-		User: "freedb_blip_admin",
-		Password: "*NtbhBjSKPF8wZn",
-		Database: "freedb_blipDb",
+		Host: viper.GetString("MYSQL_HOST"),
+		Port: viper.GetString("MYSQL_PORT"),
+		User: viper.GetString("MYSQL_USERNAME"),
+		Password: viper.GetString("MYSQL_PASSWORD"),
+		Database: viper.GetString("DB_NAME"),
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", config.User, config.Password, config.Host, config.Port, config.Database)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.User, config.Password, config.Host, config.Port, config.Database)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("\nerror occured connecting to the database.\nPlease try again")

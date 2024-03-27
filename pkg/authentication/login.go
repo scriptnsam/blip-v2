@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/scriptnsam/blip-v2/pkg/database"
 	"github.com/scriptnsam/blip-v2/pkg/security"
@@ -9,7 +10,6 @@ import (
 )
 
 var (
-	loggedIn bool = false
 	userId   int
 )
 
@@ -23,6 +23,8 @@ func Login(username string, password string) (string, error) {
 	var (
 		id int
 		hashedPassword string
+
+		dbId int
 	)
 
 	err = db.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username).Scan(&id, &username, &hashedPassword)
@@ -32,7 +34,6 @@ func Login(username string, password string) (string, error) {
 		}
 		return "", err
 	}
-
 
 
 	r:=security.VerifyPassword(password, hashedPassword)
@@ -66,23 +67,46 @@ func Login(username string, password string) (string, error) {
 		return "", err
 	}
 
+	// Check if user's details is already stored in the db. If it's already stored, Just update the token
+	sqlDb.QueryRow("SELECT id FROM authentication WHERE user_id = ?", id).Scan(&dbId)
+	if dbId != 0 {
+		_, err = sqlDb.Exec("UPDATE authentication SET token = ? WHERE user_id = ?", token, id)
+		if err != nil {
+			return "", err
+		}
+		return "Logged in (from update)", nil
+	}
+
 	// Insert token into authentication table
 	_, err = sqlDb.Exec(
-		"INSERT INTO authentication (user_id, token) VALUES (?, ?)",userId,token)
+		"INSERT INTO authentication (user_id, token) VALUES (?, ?)",id,token)
+		if err != nil {
+			return "", err
+		}
 
 	userId = id
-	loggedIn = true
 	return "Logged in", nil
 }
 
-func Logout() {
-	loggedIn = false
-}
-
 func IsLoggedIn() (bool, int) {
-	if !loggedIn {
-		return loggedIn, 0
+	sqlDb,err:=database.SqLite();
+	if err != nil {
+		return false, 0
 	}
-	loggedIn = true
-	return loggedIn, userId
+
+	defer sqlDb.Close()
+
+	var token string
+
+	sqlDb.QueryRow("SELECT user_id, token FROM authentication WHERE user_id = ?", userId).Scan(&userId,&token)
+
+	// check if token is valid
+	r,err:=utils.ParseToken(token)
+	if err != nil {
+		return false, 0
+	}
+
+	log.Fatal(r)
+	
+	return false, userId
 }
