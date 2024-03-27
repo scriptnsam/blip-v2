@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "modernc.org/sqlite" // import sqlite3 driver for mysql and sqlite
 )
 type Database struct {
 	*sql.DB
@@ -108,5 +109,14 @@ func General()(*Database,error){
 		return db,err
 	}
 	// defer db.Close()
+	return db,nil
+}
+
+func SqLite()(*sql.DB,error){
+	db,err:=sql.Open("sqlite","./blip.db")
+	if err!=nil{
+		return nil,fmt.Errorf("\nerror occured creating the database file.\nPlease try again")
+	}
+
 	return db,nil
 }

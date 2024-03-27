@@ -5,6 +5,7 @@ import (
 
 	"github.com/scriptnsam/blip-v2/pkg/database"
 	"github.com/scriptnsam/blip-v2/pkg/security"
+	"github.com/scriptnsam/blip-v2/pkg/utils"
 )
 
 var (
@@ -38,6 +39,36 @@ func Login(username string, password string) (string, error) {
 	if !r {
 		return "Incorrect password", nil
 	}
+
+	// connect to sqlLite
+	sqlDb,err:=database.SqLite();
+	if err != nil {
+		return "", err
+	}
+	
+	defer sqlDb.Close()
+
+	// Crete authentication table if not exists
+	_, err = sqlDb.Exec(
+		`CREATE TABLE IF NOT EXISTS authentication (
+			id INTEGER PRIMARY KEY,
+			user_id INTEGER NOT NULL,
+			token TEXT NOT NULL
+		)`,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	// GENERATE TOKEN
+	token, err:=utils.GenerateToken(username,password)
+	if err != nil {
+		return "", err
+	}
+
+	// Insert token into authentication table
+	_, err = sqlDb.Exec(
+		"INSERT INTO authentication (user_id, token) VALUES (?, ?)",userId,token)
 
 	userId = id
 	loggedIn = true
