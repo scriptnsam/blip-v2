@@ -18,7 +18,7 @@ type CustomClaims struct {
 // Generate JWT token
 func GenerateToken(username, password string) (string, error) {
 	expirationTime := time.Now().Add(time.Hour).Unix()
-
+  
 	claims := CustomClaims{
 		Username: username,
 		Password: password,

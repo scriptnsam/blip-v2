@@ -19,8 +19,9 @@ func Login(username string, password string) (string, error) {
 	var (
 		id int
 		hashedPassword string
-
+    
 		dbId int
+
 	)
 
 	err = db.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username).Scan(&id, &username, &hashedPassword)
@@ -30,7 +31,6 @@ func Login(username string, password string) (string, error) {
 		}
 		return "", err
 	}
-
 
 	r:=security.VerifyPassword(password, hashedPassword)
 	if !r {
