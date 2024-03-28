@@ -1,6 +1,11 @@
 package utils
 
-import "github.com/dgrijalva/jwt-go"
+import (
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
+)
 
 // define custom claims
 
@@ -12,16 +17,18 @@ type CustomClaims struct {
 
 // Generate JWT token
 func GenerateToken(username, password string) (string, error) {
+	expirationTime := time.Now().Add(time.Hour).Unix()
+  
 	claims := CustomClaims{
 		Username: username,
 		Password: password,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: 15000,
+			ExpiresAt: expirationTime,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte("gkuyGUYTGUYf76F87^f9FYf67YU))"))
+	signedToken, err := token.SignedString([]byte(viper.GetString("JWT_SECRET_KEY")))
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +39,7 @@ func GenerateToken(username, password string) (string, error) {
 // Parse and validate JWT token
 func ParseToken(tokenString string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("gkuyGUYTGUYf76F87^f9FYf67YU"), nil
+		return []byte(viper.GetString("JWT_SECRET_KEY")), nil
 	})
 
 	if err != nil {
