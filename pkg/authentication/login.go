@@ -9,10 +9,6 @@ import (
 	"github.com/scriptnsam/blip-v2/pkg/utils"
 )
 
-var (
-	userId   int
-)
-
 func Login(username string, password string) (string, error) {
 	db, err := database.General()
 	if err != nil {
@@ -50,16 +46,28 @@ func Login(username string, password string) (string, error) {
 	defer sqlDb.Close()
 
 	// Crete authentication table if not exists
-	_, err = sqlDb.Exec(
-		`CREATE TABLE IF NOT EXISTS authentication (
+	
+		sqliteStmt:=[]string{
+			`CREATE TABLE IF NOT EXISTS authentication (
 			id INTEGER PRIMARY KEY,
 			user_id INTEGER NOT NULL,
-			token TEXT NOT NULL
+			token TEXT NOT NULL,
+			time DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-	)
-	if err != nil {
-		return "", err
+		`CREATE TRIGGER IF NOT EXISTS update_time_trigger 
+		AFTER UPDATE ON authentication 
+		FOR EACH ROW 
+		BEGIN
+			UPDATE authentication SET time = CURRENT_TIMESTAMP WHERE id = OLD.id;
+		END;`,
 	}
+
+		for _, stmt:=range sqliteStmt {
+			_, err = sqlDb.Exec(stmt)
+			if err != nil {
+				return "", err
+			}
+		}
 
 	// GENERATE TOKEN
 	token, err:=utils.GenerateToken(username,password)
@@ -84,7 +92,6 @@ func Login(username string, password string) (string, error) {
 			return "", err
 		}
 
-	userId = id
 	return "Logged in", nil
 }
 
@@ -96,9 +103,15 @@ func IsLoggedIn() (bool, int) {
 
 	defer sqlDb.Close()
 
-	var token string
+	var (
+		token string
+		userId int
+	)
 
-	sqlDb.QueryRow("SELECT user_id, token FROM authentication WHERE user_id = ?", userId).Scan(&userId,&token)
+	// get logged in user id
+	if err:=sqlDb.QueryRow("SELECT user_id, token FROM authentication").Scan(&userId,&token);err!=nil{
+		return false, 0
+	}
 
 	// check if token is valid
 	r,err:=utils.ParseToken(token)
@@ -106,7 +119,7 @@ func IsLoggedIn() (bool, int) {
 		return false, 0
 	}
 
-	log.Fatal(r)
+	log.Println(r)
 	
-	return false, userId
+	return true, userId
 }
