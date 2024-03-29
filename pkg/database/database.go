@@ -65,6 +65,7 @@ func CreateTables(db *Database) error {
 			group_name VARCHAR(50) NOT NULL,
 			os_type VARCHAR(50) NOT NULL,
 			download_link VARCHAR(100) NOT NULL,
+			file_extension VARCHAR(10) NOT NULL,
 			date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		)`,
@@ -72,6 +73,7 @@ func CreateTables(db *Database) error {
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			user_id INT NOT NULL,
 			name VARCHAR(50) NOT NULL,
+			os_type VARCHAR(50) NOT NULL,
 			date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 		)`,
@@ -88,9 +90,10 @@ func CreateTables(db *Database) error {
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 			FOREIGN KEY (tool_id) REFERENCES tools(id) ON DELETE CASCADE
 		)`,
-		// `INSERT INTO users (username, password, email, full_name, role) VALUES ('scriptnsam', 'Samuel', 'oluwafemisam40@gmail.com', 'Samuel Oluwafemi', 'user')`,
-		// `INSERT INTO tool_groups (user_id,name) VALUES (1,"new")`,
-		// `INSERT INTO tools (user_id, name, group_name, os_type, download_link) VALUES (1,"rufus","New","windows","https://github.com/pbatard/rufus/releases/download/v4.4/rufus-4.4.exe")`,
+
+		// `INSERT INTO users (username, password, email, full_name, role) VALUES ('scriptnsam', '$2a$10$LIj00tP8pX3v9GOKqh07HuQpGrHqKR.BSSTH.DZwDPJbgt4jk9IVW', 'oluwafemisam40@gmail.com', 'Samuel Oluwafemi', 'user')`,
+		// `INSERT INTO tool_groups (user_id,name,os_type) VALUES (1,"Plan B","windows")`,
+		// `INSERT INTO tools (user_id, name, group_name, os_type, download_link,file_extension) VALUES (1,"rufus","New","windows","https://github.com/pbatard/rufus/releases/download/v4.4/rufus-4.4.exe","exe")`,
 	}
 
 	for _,stmt:=range statements{
