@@ -7,8 +7,13 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/manifoldco/promptui"
 	"github.com/scriptnsam/blip-v2/pkg/tools"
 	"github.com/spf13/cobra"
+)
+
+var(
+	groupsFlag bool
 )
 
 // viewCmd represents the view command
@@ -17,18 +22,59 @@ var viewCmd = &cobra.Command{
 	Short: "See the list of your available tool",
 	Long: ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		resp,err:=tools.ViewTools()
-		if err!=nil{
-			log.Fatal(err)
-		}
-		fmt.Println(resp)
+
+		if groupsFlag{
+			groups,err:=tools.ViewGroups()
+			if err!=nil{
+				log.Fatal(err)
+			}
+
+			// create a slice of strng to store the options for the prompt
+			options := make([]string, 0)
+
+			// give serial number for each group
+			for i,group:=range groups{
+				options = append(options, fmt.Sprintf("%v. %s", i+1, group.Name))
+			}
+
+			prompt := promptui.Select{
+				Label: "Select a group",
+				Items: options,
+			}
+
+			_,selectedOption,err:=prompt.Run()
+			if err!=nil{
+				log.Fatal(err)
+			}
+
+			// Check if no option was selected
+			if len(selectedOption) == 0 {
+				fmt.Println("No option selected.")
+				return
+			}
+
+			// Find the selected group based on the selected option
+			selectedIndex:= selectedOption[0]-'0'-1
+			selectedGroup:=groups[selectedIndex]
+
+			fmt.Printf("You selected: %s\n",selectedGroup.Name)
+
+		}else{
+			resp,err:=tools.ViewTools()
+			if err!=nil{
+				log.Fatal(err)
+			}
+			fmt.Println(resp)
+		}		
 	},
 }
 
 func init() {
-	MeCmd.AddCommand(viewCmd)
-
 	// Here you will define your flags and configuration settings.
+	viewCmd.Flags().BoolVarP(&groupsFlag,"groups","g",false,"View groups of tools")
+
+
+	MeCmd.AddCommand(viewCmd)
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

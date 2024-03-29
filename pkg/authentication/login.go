@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/scriptnsam/blip-v2/pkg/database"
 	"github.com/scriptnsam/blip-v2/pkg/security"
@@ -114,12 +113,10 @@ func IsLoggedIn() (bool, int) {
 	}
 
 	// check if token is valid
-	r,err:=utils.ParseToken(token)
+	_,err=utils.ParseToken(token)
 	if err != nil {
 		return false, 0
 	}
-
-	log.Println(r)
 	
 	return true, userId
 }
