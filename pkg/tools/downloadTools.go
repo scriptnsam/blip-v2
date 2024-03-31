@@ -62,7 +62,7 @@ func DownloadTool(url string,toolName string) (string, error) {
 		return "", err
 	}
 
-	resp.Body.Close()
+	// resp.Body.Close()
 
 	// cherckl if the request was successful
 	if resp.StatusCode!=http.StatusOK{
@@ -77,6 +77,5 @@ func DownloadTool(url string,toolName string) (string, error) {
 		return "", err
 	}
 
-	log.Println("Tool downloaded successfully")
 	return fileName, nil	
 }
