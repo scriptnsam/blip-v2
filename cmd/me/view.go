@@ -131,6 +131,76 @@ var viewCmd = &cobra.Command{
 
 			fmt.Println("Tools download and installation completed.")
 
+			t, err := tools.ViewToolsByGroup(selectedGroup.Name)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// check if there are no tools in the group
+			if len(t) == 0 {
+				fmt.Println("No tools found in the group.")
+				return
+			}
+
+			headerFmt := color.New(color.FgWhite, color.BgCyan).SprintfFunc()
+
+			tbl := table.New("Name", "Group", "Download Link", "Date Created")
+			tbl.WithHeaderFormatter(headerFmt)
+			tbl.WithFirstColumnFormatter(color.New(color.FgCyan).SprintfFunc())
+			tbl.WithPadding(3)
+			for _, tool := range t {
+				tbl.AddRow(tool.Name, tool.Group, tool.DownloadLink, tool.DateCreated)
+			}
+
+			tbl.Print()
+
+			// run a function to download each tool in the group
+			// ask for tools download consent from user as a prompt
+			for {
+				consentPrompt := promptui.Prompt{
+					Label: "Do you want to download these tools [y/n]?",
+				}
+
+				input, err := consentPrompt.Run()
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				if input != "y" && input != "n" {
+					fmt.Println("invalid input. please enter 'y' or 'n'")
+					continue
+				}
+
+				if input == "n" {
+					fmt.Println("Exiting...")
+					return
+				}
+				break
+			}
+
+			// download the tools
+			fmt.Printf("Tools download starting...\n\n")
+			for _, tool := range t {
+				fmt.Println("Downloading", tool.Name)
+				fmt.Println("Please wait...")
+				resp, err := tools.DownloadTool(tool.DownloadLink, tool.Name)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Printf("Successfully downloaded %v to %s\n\n", tool.Name, resp)
+
+				// Install the tool
+				fmt.Println("Installing", tool.Name)
+				fmt.Println("Please wait...")
+				s, err := tools.InstallTool(resp)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(s)
+			}
+
+			fmt.Println("Tools download and installation completed.")
+
 		} else {
 			resp, err := tools.ViewTools()
 			if err != nil {
