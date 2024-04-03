@@ -61,51 +61,6 @@ var viewCmd = &cobra.Command{
 
 			// fmt.Printf("You selected: %s\nPlease wait...",selectedGroup.Name)
 
-			t,err:=tools.ViewToolsByGroup(selectedGroup.Name)
-			if err!=nil{
-				log.Fatal(err)
-			}
-
-			fmt.Println(t)
-
-			// run a function to download each tool in the group
-			// ask for tools download consent from user as a prompt
-			for {
-				consentPrompt := promptui.Prompt{
-					Label: "Do you want to download these tools [y/n]?",
-				}
-
-				input, err := consentPrompt.Run()
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				if input != "y" && input != "n" {
-					fmt.Println("invalid input. please enter 'y' or 'n'")
-					continue
-				}
-
-				if input=="n"{
-					fmt.Println("Exiting...")
-					return
-				}
-				break
-			}
-			
-			// download the tools
-			fmt.Printf("Tools download starting...\n\n")
-			for _,tool:=range t{
-				fmt.Println("Downloading",tool.Name)
-				fmt.Println("Please wait...")
-				resp,err:=tools.DownloadTool(tool.DownloadLink,tool.Name)
-				if err!=nil{
-					log.Fatal(err)
-				}
-				fmt.Printf("Successfully downloaded %v to %s\n\n",tool.Name,resp)
-			}
-
-			fmt.Println("Tools download completed.")
-
 			t, err := tools.ViewToolsByGroup(selectedGroup.Name)
 			if err != nil {
 				log.Fatal(err)
