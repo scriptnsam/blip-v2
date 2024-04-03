@@ -1,9 +1,9 @@
 {
     "name": "blip-cli",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Easily move your applications from one computer to the other",
     "bin": {
-        "blip-cli": "bin/blip-cli-windows-amd64.exe"
+        "blip": "bin/blip-cli-windows-amd64.exe"
     },
     "repository": {
         "type": "git",
