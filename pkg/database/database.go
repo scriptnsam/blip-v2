@@ -3,11 +3,16 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
+	"os/user"
+	"path/filepath"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	_ "modernc.org/sqlite" // import sqlite3 driver for mysql and sqlite
 )
+
 type Database struct {
 	*sql.DB
 }
@@ -17,15 +22,15 @@ type DBConfig struct {
 	Port     string
 	User     string
 	Password string
-	Database     string
+	Database string
 }
 
 // connect to the databse
 func Connect() (*Database, error) {
-	config :=DBConfig{
-		Host: viper.GetString("MYSQL_HOST"),
-		Port: viper.GetString("MYSQL_PORT"),
-		User: viper.GetString("MYSQL_USERNAME"),
+	config := DBConfig{
+		Host:     viper.GetString("MYSQL_HOST"),
+		Port:     viper.GetString("MYSQL_PORT"),
+		User:     viper.GetString("MYSQL_USERNAME"),
 		Password: viper.GetString("MYSQL_PASSWORD"),
 		Database: viper.GetString("DB_NAME"),
 	}
@@ -96,7 +101,7 @@ func CreateTables(db *Database) error {
 		// `INSERT INTO tools (user_id, name, group_name, os_type, download_link,file_extension) VALUES (1,"cpu-z","New","windows","https://download.cpuid.com/cpu-z/cpu-z_2.09-en.exe","exe")`,
 	}
 
-	for _,stmt:=range statements{
+	for _, stmt := range statements {
 		_, err := db.Exec(stmt)
 		if err != nil {
 			return fmt.Errorf("\nerror occured creating the table.\nPlease try again")
@@ -107,20 +112,41 @@ func CreateTables(db *Database) error {
 	return nil
 }
 
-func General()(*Database,error){
-	db,err:=Connect()
+// The General function connects to a database and returns a pointer to the database object along with
+// any error encountered.
+func General() (*Database, error) {
+	db, err := Connect()
 	if err != nil {
-		return db,err
+		return db, err
 	}
 	// defer db.Close()
-	return db,nil
+	return db, nil
 }
 
-func SqLite()(*sql.DB,error){
-	db,err:=sql.Open("sqlite","./blip.db")
-	if err!=nil{
-		return nil,fmt.Errorf("\nerror occured creating the database file.\nPlease try again")
+// The `SqLite` function creates a SQLite database file in a specified directory and returns a pointer
+// to the database connection.
+func SqLite() (*sql.DB, error) {
+	// Get user documents directory
+	userDir, err := user.Current()
+	if err != nil {
+		return nil, err
 	}
 
-	return db,nil
+	// constructy the path to the Documents folder
+	documentsFolder := filepath.Join(userDir.HomeDir, "Documents")
+
+	newFolder := filepath.Join(documentsFolder, "blip")
+	if err := os.MkdirAll(newFolder, 0755); err != nil {
+		log.Fatal("Error creating folder:", err)
+		return nil, err
+	}
+
+	dbFileName := filepath.Join(newFolder, "blip.db")
+
+	db, err := sql.Open("sqlite", dbFileName)
+	if err != nil {
+		return nil, fmt.Errorf("\nerror occured creating the database file.\nPlease try again")
+	}
+
+	return db, nil
 }
