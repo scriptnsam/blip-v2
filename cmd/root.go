@@ -38,7 +38,6 @@ func Execute() {
 	}
 }
 
-
 func AddSubCommand(cmd *cobra.Command) {
 	rootCmd.AddCommand(cmd)
 }
@@ -56,11 +55,9 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-
 	AddSubCommand(me.MeCmd)
 
 }
-
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
@@ -77,8 +74,8 @@ func initConfig() {
 		// viper.SetConfigType("yaml")
 		// viper.SetConfigName(".blip-v2")
 
-		viper.SetConfigFile(".env")
-		
+		// viper.SetConfigFile(".env")
+
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
