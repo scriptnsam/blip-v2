@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		if versionFlag {
-			fmt.Println("blip v1.1.4")
+			fmt.Println("blip v1.1.5")
 		} else {
 			cmd.Help()
 		}
