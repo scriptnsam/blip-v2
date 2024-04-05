@@ -13,8 +13,8 @@ npm i -g blip-cli
   `me`          **Me is a command that represents the user's profile**
 
 ### Flags:
-      -h, --help            help for blip
-      -t, --toggle          Help message for toggle
+  `-h, --help`      **help for blip**
+  `-v, --version`   **View current version**
 
 **Use `"blip [command] --help"` for more information about a command.**
 
@@ -24,5 +24,5 @@ npm i -g blip-cli
       blip me [command]
       ```
 ### Available Commands:      
-`login` **Login to your Blip account**
-`view` **See the list of your available tool**
+  `login` **Login to your Blip account**\n
+  `view` **See the list of your available tool**
