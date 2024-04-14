@@ -10,7 +10,7 @@ import (
 
 type Tools struct {
 	Name         string
-	DownloadLink string
+	PackageName string
 	Group        string
 	DateCreated string
 }
@@ -28,7 +28,7 @@ func ViewTools() ([]Tools,error) {
 		return []Tools{},fmt.Errorf("\nNot Authenticated\nPlease run the login command `blip me login -u <username> -p <password>`")
 	}
 
-	rows, err := db.Query("SELECT name,download_link,group_name,date_created FROM tools WHERE user_id=?",userId)
+	rows, err := db.Query("SELECT name,package_name,group_name,date_created FROM tools WHERE user_id=?",userId)
 	if err != nil {
 		return []Tools{}, err
 	}
@@ -37,7 +37,7 @@ func ViewTools() ([]Tools,error) {
 	var tools []Tools
 	for rows.Next() {
 		var tool Tools
-		err := rows.Scan(&tool.Name, &tool.DownloadLink, &tool.Group, &tool.DateCreated)
+		err := rows.Scan(&tool.Name, &tool.PackageName, &tool.Group, &tool.DateCreated)
 		if err != nil {
 			return []Tools{}, err
 		}
@@ -63,7 +63,7 @@ func ViewToolsByGroup(group string) ([]Tools, error) {
 		return []Tools{},fmt.Errorf("\nNot Authenticated\nPlease run the login command `blip me login -u <username> -p <password>`")
 	}
 
-	rows, err := db.Query("SELECT name, download_link, group_name, date_created FROM tools WHERE user_id=? AND group_name=?", userId, group)
+	rows, err := db.Query("SELECT name, package_name, group_name, date_created FROM tools WHERE user_id=? AND group_name=?", userId, group)
 	if err != nil {
 		return []Tools{}, err
 	}
@@ -72,7 +72,7 @@ func ViewToolsByGroup(group string) ([]Tools, error) {
 	var tools []Tools
 	for rows.Next() {
 		var tool Tools
-		err := rows.Scan(&tool.Name, &tool.DownloadLink, &tool.Group, &tool.DateCreated)
+		err := rows.Scan(&tool.Name, &tool.PackageName, &tool.Group, &tool.DateCreated)
 		if err != nil {
 			return []Tools{}, err
 		}
