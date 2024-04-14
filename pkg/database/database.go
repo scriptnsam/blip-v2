@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	_ "modernc.org/sqlite" // import sqlite3 driver for mysql and sqlite
 )
+
 type Database struct {
 	*sql.DB
 }
@@ -17,15 +18,15 @@ type DBConfig struct {
 	Port     string
 	User     string
 	Password string
-	Database     string
+	Database string
 }
 
 // connect to the databse
 func Connect() (*Database, error) {
-	config :=DBConfig{
-		Host: viper.GetString("MYSQL_HOST"),
-		Port: viper.GetString("MYSQL_PORT"),
-		User: viper.GetString("MYSQL_USERNAME"),
+	config := DBConfig{
+		Host:     viper.GetString("MYSQL_HOST"),
+		Port:     viper.GetString("MYSQL_PORT"),
+		User:     viper.GetString("MYSQL_USERNAME"),
 		Password: viper.GetString("MYSQL_PASSWORD"),
 		Database: viper.GetString("DB_NAME"),
 	}
@@ -64,7 +65,7 @@ func CreateTables(db *Database) error {
 			name VARCHAR(50) NOT NULL UNIQUE,
 			group_name VARCHAR(50) NOT NULL,
 			os_type VARCHAR(50) NOT NULL,
-			download_link VARCHAR(100) NOT NULL,
+			package_name VARCHAR(100) NOT NULL,
 			file_extension VARCHAR(10) NOT NULL,
 			date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -92,11 +93,11 @@ func CreateTables(db *Database) error {
 		)`,
 
 		// `INSERT INTO users (username, password, email, full_name, role) VALUES ('scriptnsam', '$2a$10$LIj00tP8pX3v9GOKqh07HuQpGrHqKR.BSSTH.DZwDPJbgt4jk9IVW', 'oluwafemisam40@gmail.com', 'Samuel Oluwafemi', 'user')`,
-		// `INSERT INTO tool_groups (user_id,name,os_type) VALUES (1,"Plan B","windows")`,
-		// `INSERT INTO tools (user_id, name, group_name, os_type, download_link,file_extension) VALUES (1,"cpu-z","New","windows","https://download.cpuid.com/cpu-z/cpu-z_2.09-en.exe","exe")`,
+		// `INSERT INTO tool_groups (user_id,name,os_type) VALUES (1,"New","windows")`,
+		// `INSERT INTO tools (user_id, name, group_name, os_type, package_name,file_extension) VALUES (1,"cpu-z","New","windows","cpu-z","exe")`,
 	}
 
-	for _,stmt:=range statements{
+	for _, stmt := range statements {
 		_, err := db.Exec(stmt)
 		if err != nil {
 			return fmt.Errorf("\nerror occured creating the table.\nPlease try again")
@@ -107,20 +108,20 @@ func CreateTables(db *Database) error {
 	return nil
 }
 
-func General()(*Database,error){
-	db,err:=Connect()
+func General() (*Database, error) {
+	db, err := Connect()
 	if err != nil {
-		return db,err
+		return db, err
 	}
 	// defer db.Close()
-	return db,nil
+	return db, nil
 }
 
-func SqLite()(*sql.DB,error){
-	db,err:=sql.Open("sqlite","./blip.db")
-	if err!=nil{
-		return nil,fmt.Errorf("\nerror occured creating the database file.\nPlease try again")
+func SqLite() (*sql.DB, error) {
+	db, err := sql.Open("sqlite", "./blip.db")
+	if err != nil {
+		return nil, fmt.Errorf("\nerror occured creating the database file.\nPlease try again")
 	}
 
-	return db,nil
+	return db, nil
 }

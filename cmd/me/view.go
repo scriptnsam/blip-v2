@@ -74,12 +74,12 @@ var viewCmd = &cobra.Command{
 
 			headerFmt := color.New(color.FgWhite, color.BgCyan).SprintfFunc()
 
-			tbl := table.New("Name", "Group", "Download Link", "Date Created")
+			tbl := table.New("Name", "Group", "Package Name", "Date Created")
 			tbl.WithHeaderFormatter(headerFmt)
 			tbl.WithFirstColumnFormatter(color.New(color.FgCyan).SprintfFunc())
 			tbl.WithPadding(3)
 			for _, tool := range t {
-				tbl.AddRow(tool.Name, tool.Group, tool.DownloadLink, tool.DateCreated)
+				tbl.AddRow(tool.Name, tool.Group, tool.PackageName, tool.DateCreated)
 			}
 
 			tbl.Print()
@@ -113,20 +113,26 @@ var viewCmd = &cobra.Command{
 			for _, tool := range t {
 				fmt.Println("Downloading", tool.Name)
 				fmt.Println("Please wait...")
-				resp, err := tools.DownloadTool(tool.DownloadLink, tool.Name)
-				if err != nil {
-					log.Fatal(err)
-				}
-				fmt.Printf("Successfully downloaded %v to %s\n\n", tool.Name, resp)
+				// resp, err := tools.DownloadTool(tool.PackageName, tool.Name)
+				// if err != nil {
+				// 	log.Fatal(err)
+				// }
+				// fmt.Printf("Successfully downloaded %v to %s\n\n", tool.Name, resp)
 
-				// Install the tool
-				fmt.Println("Installing", tool.Name)
-				fmt.Println("Please wait...")
-				s, err := tools.InstallTool(resp)
+				resp, err := tools.DownloadAndInstallTool(tool.PackageName)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Println(s)
+				fmt.Println(resp)
+
+				// // Install the tool
+				// fmt.Println("Installing", tool.Name)
+				// fmt.Println("Please wait...")
+				// s, err := tools.InstallTool(resp)
+				// if err != nil {
+				// 	log.Fatal(err)
+				// }
+				// fmt.Println(s)
 			}
 
 			fmt.Println("Tools download and installation completed.")
@@ -139,12 +145,12 @@ var viewCmd = &cobra.Command{
 
 			headerFmt := color.New(color.FgWhite, color.BgCyan).SprintfFunc()
 
-			tbl := table.New("Name", "Group", "Download Link", "Date Created")
+			tbl := table.New("Name", "Group", "Package Name", "Date Created")
 			tbl.WithHeaderFormatter(headerFmt)
 			tbl.WithFirstColumnFormatter(color.New(color.FgCyan).SprintfFunc())
 			tbl.WithPadding(3)
 			for _, tool := range resp {
-				tbl.AddRow(tool.Name, tool.Group, tool.DownloadLink, tool.DateCreated)
+				tbl.AddRow(tool.Name, tool.Group, tool.PackageName, tool.DateCreated)
 			}
 
 			tbl.Print()
