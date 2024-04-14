@@ -79,7 +79,7 @@ var viewCmd = &cobra.Command{
 			tbl.WithFirstColumnFormatter(color.New(color.FgCyan).SprintfFunc())
 			tbl.WithPadding(3)
 			for _, tool := range tG {
-				tbl.AddRow(tool.Name, tool.Group, tool.DownloadLink, tool.DateCreated)
+				tbl.AddRow(tool.Name, tool.Group, tool.PackageName, tool.DateCreated)
 			}
 
 			tbl.Print()
@@ -113,7 +113,7 @@ var viewCmd = &cobra.Command{
 			for _, tool := range tG {
 				fmt.Println("Downloading", tool.Name)
 				fmt.Println("Please wait...")
-				resp, err := tools.DownloadTool(tool.DownloadLink, tool.Name)
+				resp, err := tools.DownloadTool(tool.PackageName, tool.Name)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -149,7 +149,7 @@ var viewCmd = &cobra.Command{
 			tblN.WithFirstColumnFormatter(color.New(color.FgCyan).SprintfFunc())
 			tblN.WithPadding(3)
 			for _, tool := range t {
-				tblN.AddRow(tool.Name, tool.Group, tool.DownloadLink, tool.DateCreated)
+				tblN.AddRow(tool.Name, tool.Group, tool.PackageName, tool.DateCreated)
 			}
 
 			tblN.Print()
@@ -217,7 +217,7 @@ var viewCmd = &cobra.Command{
 			headerFmt := color.New(color.FgWhite, color.BgCyan).SprintfFunc()
 
 			tbl := table.New("Name", "Group", "Package Name", "Date Created")
-      
+
 			tbl.WithHeaderFormatter(headerFmt)
 			tbl.WithFirstColumnFormatter(color.New(color.FgCyan).SprintfFunc())
 			tbl.WithPadding(3)
