@@ -3,6 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
+	"os/user"
+	"path/filepath"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
@@ -108,6 +112,8 @@ func CreateTables(db *Database) error {
 	return nil
 }
 
+// The General function connects to a database and returns a pointer to the database object along with
+// any error encountered.
 func General() (*Database, error) {
 	db, err := Connect()
 	if err != nil {
@@ -117,8 +123,27 @@ func General() (*Database, error) {
 	return db, nil
 }
 
+// The `SqLite` function creates a SQLite database file in a specified directory and returns a pointer
+// to the database connection.
 func SqLite() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "./blip.db")
+	// Get user documents directory
+	userDir, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
+	// constructy the path to the Documents folder
+	documentsFolder := filepath.Join(userDir.HomeDir, "Documents")
+
+	newFolder := filepath.Join(documentsFolder, "blip")
+	if err := os.MkdirAll(newFolder, 0755); err != nil {
+		log.Fatal("Error creating folder:", err)
+		return nil, err
+	}
+
+	dbFileName := filepath.Join(newFolder, "blip.db")
+
+	db, err := sql.Open("sqlite", dbFileName)
 	if err != nil {
 		return nil, fmt.Errorf("\nerror occured creating the database file.\nPlease try again")
 	}
