@@ -6,16 +6,34 @@
 
 ### Installing and Running the Script
 
+#### Windows
 1. Open Command Prompt or PowerShell as an **administrator** (right-click -> Run as administrator).
 2. Install the npm package globally:
-```bash
-npm i -g blip-cli
-```
+    ```bash
+    npm i -g blip-cli
+    ```
 3. Setup the cli to install necessary dependencies:
-```bash
-blip --setup
-```
+    ```bash
+    blip --setup
+    ```
 
+#### macOS
+1. Open Terminal
+2. Install Homebrew (package manager for macOS):
+    ```bash
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ```
+3. Install the npm package globally:
+    ```bash
+    npm i -g blip-cli
+    ```
+
+### Linux
+1. Open Terminal
+2. Install the npm package globally (requires administrative privileges):
+    ```bash
+    sudo npm i -g blip-cli
+    ```
 ## Usage:
    ```bash
    blip [command]
