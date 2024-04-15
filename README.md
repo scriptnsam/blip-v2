@@ -45,3 +45,5 @@ Use `"blip [command] --help"` for more information about a command.
 login     Login to your Blip account
 view      See the list of your available tool
 ```
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/scriptnsam/blip-v2.svg)](https://pkg.go.dev/github.com/scriptnsam/blip-v2)
