@@ -1,6 +1,6 @@
 {
     "name": "blip-cli",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "description": "Easily move your applications from one computer to the other",
     "bin": {
         "blip": "bin/blip-cli.exe"

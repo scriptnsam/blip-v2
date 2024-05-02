@@ -17,6 +17,7 @@ var (
 	cfgFile     string
 	versionFlag bool
 	setupFlag   bool
+	updateFlag bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -31,6 +32,9 @@ var rootCmd = &cobra.Command{
 			fmt.Println("v1.2.5")
 		} else if setupFlag {
 			resp := dependency.SetupChocolatey()
+			fmt.Println(resp)
+		}else if updateFlag {
+			resp := dependency.UpdateBlip()
 			fmt.Println(resp)
 		} else {
 			cmd.Help()
@@ -66,6 +70,7 @@ func init() {
 
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "View current version")
 	rootCmd.Flags().BoolVarP(&setupFlag, "setup", "s", false, "Setup the Blip CLI")
+	rootCmd.Flags().BoolVarP(&updateFlag, "update", "u", false, "Update the Blip CLI")
 
 	AddSubCommand(me.MeCmd)
 
