@@ -37,9 +37,11 @@ func Connect() (*Database, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", config.User, config.Password, config.Host, config.Port, config.Database)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
+		fmt.Println(err)
 		return nil, fmt.Errorf("\nerror occured connecting to the database.\nPlease try again")
 	}
 	if err := db.Ping(); err != nil {
+		fmt.Println(err)
 		return nil, fmt.Errorf("\nerror occured connecting to the database.\nPlease try again")
 	}
 

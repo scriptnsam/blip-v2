@@ -17,7 +17,7 @@ var (
 	cfgFile     string
 	versionFlag bool
 	setupFlag   bool
-	updateFlag bool
+	updateFlag  bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -29,11 +29,11 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		if versionFlag {
-			fmt.Println("v1.2.5")
+			fmt.Println("v1.3.0")
 		} else if setupFlag {
 			resp := dependency.SetupChocolatey()
 			fmt.Println(resp)
-		}else if updateFlag {
+		} else if updateFlag {
 			resp := dependency.UpdateBlip()
 			fmt.Println(resp)
 		} else {

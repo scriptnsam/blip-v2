@@ -7,7 +7,8 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"syscall"
+
+	"github.com/scriptnsam/blip-v2/pkg/sect"
 )
 
 func DownloadAndInstallTool(packageName string) (string, error) {
@@ -70,7 +71,8 @@ func InstallChocolatey() error {
 	powerShellCmd := `iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))`
 
 	cmd := exec.Command(cmdName, "-NoProfile", "-InputFormat", "None", "-ExecutionPolicy", "Bypass", "-Command", powerShellCmd)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	// cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	sect.SetSysProcAttr(cmd)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
