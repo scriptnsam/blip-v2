@@ -16,7 +16,7 @@ const getBinaryPath = () => {
       binaryPath = path.join(__dirname, 'bin', `${binaryName}-linux`);
       break;
     case 'win32-x64':
-      binaryPath = path.join(__dirname, 'bin', `${binaryName}-windows.exe`);
+      binaryPath = path.join(__dirname, 'bin', `${binaryName}-win.exe`);
       break;
     case 'darwin-x64': // Intel macOS
       binaryPath = path.join(__dirname, 'bin', `${binaryName}-macos`);
