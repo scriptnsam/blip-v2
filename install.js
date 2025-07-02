@@ -1,27 +1,28 @@
-// install.js
-const {platform, arch} = require("os");
-const {copyFileSync, chmodSync} = require("fs");
-const {join} = require("path");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+
+const platform = os.platform();
 
 let binName;
-switch (platform()) {
-  case "win32":
-    binName = "blip-win.exe";
-    break;
-  case "darwin":
-    binName = "blip-macos";
-    break;
-  case "linux":
-    binName = "blip-linux";
-    break;
-  default:
-    throw new Error(`Unsupported platform: ${platform()}`);
+
+if (platform === "win32") {
+  binName = "blip-win.exe";
+} else if (platform === "darwin") {
+  binName = "blip-macos";
+} else {
+  binName = "blip-linux";
 }
 
-const src = join(__dirname, "bin", binName);
-const dest = join(__dirname, "blip");
+const src = path.join(__dirname, "bin", binName);
+const dest = path.join(__dirname, "blip");
 
-copyFileSync(src, dest);
-chmodSync(dest, 0o755); // make it executable
-console.log(`Installed blip binary for ${platform()}`);
+try {
+  fs.copyFileSync(src, dest);
+  fs.chmodSync(dest, 0o755);
+  console.log(`Installed blip binary for ${platform}`);
+} catch (err) {
+  console.error("Error installing binary:", err.message);
+  process.exit(1);
+}
 
