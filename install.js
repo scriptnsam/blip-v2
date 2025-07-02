@@ -1,28 +1,23 @@
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
+const os = require("os");
 
 const platform = os.platform();
-
-let binName;
+let src;
 
 if (platform === "win32") {
-  binName = "blip-win.exe";
+  src = path.join(__dirname, "bin", "blip-win.exe");
 } else if (platform === "darwin") {
-  binName = "blip-macos";
+  src = path.join(__dirname, "bin", "blip-macos");
+} else if (platform === "linux") {
+  src = path.join(__dirname, "bin", "blip-linux");
 } else {
-  binName = "blip-linux";
-}
-
-const src = path.join(__dirname, "bin", binName);
-const dest = path.join(__dirname, "blip");
-
-try {
-  fs.copyFileSync(src, dest);
-  fs.chmodSync(dest, 0o755);
-  console.log(`Installed blip binary for ${platform}`);
-} catch (err) {
-  console.error("Error installing binary:", err.message);
+  console.error("Unsupported platform:", platform);
   process.exit(1);
 }
+
+const dest = path.join(__dirname, "blip");
+
+fs.copyFileSync(src, dest);
+fs.chmodSync(dest, 0o755);
 
