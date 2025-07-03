@@ -5,9 +5,9 @@ go 1.23.0
 toolchain go1.24.2
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.16.0
 	github.com/go-sql-driver/mysql v1.8.0
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/manifoldco/promptui v0.9.0
 	github.com/rodaine/table v1.2.0
 	github.com/spf13/cobra v1.8.0

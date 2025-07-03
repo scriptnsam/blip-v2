@@ -3,7 +3,7 @@ package utils
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 )
 
@@ -18,13 +18,10 @@ type CustomClaims struct {
 // Generate JWT token
 func GenerateToken(username, password string) (string, error) {
 	expirationTime := time.Now().Add(time.Hour).Unix()
-  
+
 	claims := CustomClaims{
 		Username: username,
 		Password: password,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime,
-		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
