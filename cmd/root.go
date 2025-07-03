@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		if versionFlag {
-			fmt.Println("v1.3.9")
+			fmt.Println("v1.3.10-alpha")
 		} else if setupFlag {
 			resp := dependency.SetupChocolatey()
 			fmt.Println(resp)
