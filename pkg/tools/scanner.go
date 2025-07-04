@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/scriptnsam/blip-v2/internal/helper"
 	"github.com/scriptnsam/blip-v2/internal/models"
 	"github.com/scriptnsam/blip-v2/pkg/sect"
 )
@@ -22,10 +23,34 @@ var chocoBlacklist = map[string]bool{
 	"chocolatey": true, // Exclude the Chocolatey package manager itself
 }
 
-func scanAptApps() ([]models.App, error) {
+func shouldExcludePackage(name string) bool {
+	excludedPrefixes := []string{
+		"lib",
+		"node-",
+		"python3-",
+		"gcc",
+		"linux-",
+		"gir1.2-",
+		"fonts-",
+		"manpages",
+		"perl",
+		"binutils",
+		"cpp",
+		"make",
+		"g++",
+	}
+
+	for _, prefix := range excludedPrefixes {
+		if strings.HasPrefix(name, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+func scanAptApps(showTech bool) ([]models.App, error) {
 	cmd := exec.Command("apt", "list", "--manual-installed")
 	output, err := cmd.Output()
-
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -38,7 +63,10 @@ func scanAptApps() ([]models.App, error) {
 		if strings.Contains(line, "[installed]") {
 			parts := strings.Fields(line)
 			if len(parts) > 0 {
-				name := strings.Split(parts[0], "/")[0] // e.g., "git/stable"
+				name := strings.Split(parts[0], "/")[0]
+				if !showTech && shouldExcludePackage(name) {
+					continue
+				}
 				apps = append(apps, models.App{
 					Name:    name,
 					Source:  "apt",
@@ -47,8 +75,8 @@ func scanAptApps() ([]models.App, error) {
 			}
 		}
 	}
-	return apps, nil
 
+	return apps, nil
 }
 
 // scanChocoApps detects installed Chocolatey packages
@@ -119,7 +147,7 @@ func scanNpmApps() ([]models.App, error) {
 	return apps, nil
 }
 
-func scanBrewApps() ([]models.App, error) {
+func scanBrewApps(tech bool) ([]models.App, error) {
 	var apps []models.App
 
 	// Use both formula and cask lists
@@ -145,10 +173,15 @@ func scanBrewApps() ([]models.App, error) {
 				continue
 			}
 
+			// Only filter formulae if tech flag is false
+			if source == "brew-formula" && !tech && helper.ShouldExcludeBrewFormula(line) {
+				continue
+			}
+
 			apps = append(apps, models.App{
 				Name:    line,
 				Source:  source,
-				Command: line,
+				Command: line, // You might want to make this `"brew install " + line` if useful
 			})
 		}
 
@@ -160,11 +193,11 @@ func scanBrewApps() ([]models.App, error) {
 	return apps, nil
 }
 
-func Scanner() ([]models.App, error) {
+func Scanner(showTech bool) ([]models.App, error) {
 	switch runtime.GOOS {
 	case "windows":
 		chocoApps, err1 := scanChocoApps()
-		manualApps, err2 := sect.ScanManuallyInstalledApps()
+		manualApps, err2 := sect.ScanManuallyInstalledApps(showTech)
 
 		// Collect errors if any
 		if err1 != nil && err2 != nil {
@@ -180,7 +213,7 @@ func Scanner() ([]models.App, error) {
 		return allApps, nil
 
 	case "linux":
-		aptApps, err1 := scanAptApps()
+		aptApps, err1 := scanAptApps(showTech)
 		npmApps, err2 := scanNpmApps()
 
 		if err1 != nil && err2 != nil {
@@ -194,8 +227,8 @@ func Scanner() ([]models.App, error) {
 		allApps := append(aptApps, npmApps...)
 		return allApps, nil
 	case "darwin":
-		brewApps, err1 := scanBrewApps()
-		manualApps, err2 := sect.ScanAllMacApps()
+		brewApps, err1 := scanBrewApps(showTech)
+		manualApps, err2 := sect.ScanAllMacApps(showTech)
 
 		if err1 != nil && err2 != nil {
 			return nil, fmt.Errorf("brew error: %v; manual error: %v", err1, err2)

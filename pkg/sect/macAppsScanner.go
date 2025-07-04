@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/scriptnsam/blip-v2/internal/helper"
 	"github.com/scriptnsam/blip-v2/internal/models"
 )
 
@@ -45,7 +46,7 @@ func scanManualMacApps() ([]models.App, error) {
 }
 
 // 2. .pkg-based installs
-func scanPkgUtilApps() ([]models.App, error) {
+func scanPkgUtilApps(tech bool) ([]models.App, error) {
 	cmd := exec.Command("pkgutil", "--pkgs")
 	output, err := cmd.Output()
 	if err != nil {
@@ -55,6 +56,9 @@ func scanPkgUtilApps() ([]models.App, error) {
 	scanner := bufio.NewScanner(bytes.NewReader(output))
 	for scanner.Scan() {
 		id := scanner.Text()
+		if !tech && helper.ShouldExcludeMacPkg(id) {
+			continue
+		}
 		apps = append(apps, models.App{
 			Name:    id,
 			Source:  "manual-pkg",
@@ -93,7 +97,7 @@ func scanMacAppStoreApps() ([]models.App, error) {
 }
 
 // 4. CLI Tools in bin directories
-func scanManualCLITools() ([]models.App, error) {
+func scanManualCLITools(tech bool) ([]models.App, error) {
 	binDirs := []string{
 		"/usr/local/bin",
 		"/opt/homebrew/bin",
@@ -103,13 +107,16 @@ func scanManualCLITools() ([]models.App, error) {
 	var apps []models.App
 
 	for _, dir := range binDirs {
-		erries, err := os.ReadDir(dir)
+		files, err := os.ReadDir(dir)
 		if err != nil {
 			continue
 		}
-		for _, file := range erries {
+		for _, file := range files {
 			if file.Type().IsRegular() || file.Type()&os.ModeSymlink != 0 {
 				name := file.Name()
+				if !tech && helper.ShouldExcludeCLITool(name) {
+					continue
+				}
 				if !seen[name] {
 					seen[name] = true
 					apps = append(apps, models.App{
@@ -125,21 +132,25 @@ func scanManualCLITools() ([]models.App, error) {
 }
 
 // Combiner for macOS
-func ScanAllMacApps() ([]models.App, error) {
+func ScanAllMacApps(tech bool) ([]models.App, error) {
 	var all []models.App
 
-	sources := []func() ([]models.App, error){
-		scanManualMacApps,
-		scanPkgUtilApps,
-		scanMacAppStoreApps,
-		scanManualCLITools,
+	// GUI and App Store sources do not require filtering
+	if gui, err := scanManualMacApps(); err == nil {
+		all = append(all, gui...)
 	}
 
-	for _, f := range sources {
-		apps, err := f()
-		if err == nil && len(apps) > 0 {
-			all = append(all, apps...)
-		}
+	if store, err := scanMacAppStoreApps(); err == nil && len(store) > 0 {
+		all = append(all, store...)
+	}
+
+	// Filterable sources
+	if pkg, err := scanPkgUtilApps(tech); err == nil && len(pkg) > 0 {
+		all = append(all, pkg...)
+	}
+
+	if cli, err := scanManualCLITools(tech); err == nil && len(cli) > 0 {
+		all = append(all, cli...)
 	}
 
 	return all, nil

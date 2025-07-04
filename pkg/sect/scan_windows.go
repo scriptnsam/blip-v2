@@ -1,14 +1,14 @@
 package sect
 
 import (
+	"github.com/scriptnsam/blip-v2/internal/helper"
 	"github.com/scriptnsam/blip-v2/internal/models"
 	"golang.org/x/sys/windows/registry"
 )
 
-func ScanManuallyInstalledApps() ([]models.App, error) {
+func ScanManuallyInstalledApps(showTech bool) ([]models.App, error) {
 	var apps []models.App
 
-	// Common registry locations for installed apps
 	keys := []registry.Key{
 		registry.LOCAL_MACHINE,
 		registry.CURRENT_USER,
@@ -16,7 +16,7 @@ func ScanManuallyInstalledApps() ([]models.App, error) {
 
 	paths := []string{
 		`Software\Microsoft\Windows\CurrentVersion\Uninstall`,
-		`Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall`, // for 32-bit apps on 64-bit systems
+		`Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall`,
 	}
 
 	for _, root := range keys {
@@ -40,10 +40,15 @@ func ScanManuallyInstalledApps() ([]models.App, error) {
 
 				displayName, _, err := subKey.GetStringValue("DisplayName")
 				if err == nil && displayName != "" {
+					if !showTech && helper.ShouldExcludeWindowsApp(displayName) {
+						subKey.Close()
+						continue
+					}
+
 					apps = append(apps, models.App{
 						Name:    displayName,
 						Source:  "manual",
-						Command: "", // Not usually available from registry
+						Command: "",
 					})
 				}
 				subKey.Close()
