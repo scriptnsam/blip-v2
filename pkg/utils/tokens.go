@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -12,7 +13,7 @@ import (
 type CustomClaims struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // Generate JWT token
@@ -22,6 +23,11 @@ func GenerateToken(username, password string) (string, error) {
 	claims := CustomClaims{
 		Username: username,
 		Password: password,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Unix(expirationTime, 0)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -44,8 +50,8 @@ func ParseToken(tokenString string) (*CustomClaims, error) {
 	}
 
 	claims, ok := token.Claims.(*CustomClaims)
-	if !ok {
-		return nil, err
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	return claims, nil
